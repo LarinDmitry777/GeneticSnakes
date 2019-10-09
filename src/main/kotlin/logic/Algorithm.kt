@@ -1,3 +1,5 @@
+package logic
+
 import java.io.Serializable
 
 class Algorithm : Serializable {
@@ -82,9 +84,9 @@ class Algorithm : Serializable {
     }
 
     private fun Point.toSnakeSensorsPoint(snakeHeadPosition: Point): Point? {
-        val sensorX = this.x - snakeHeadPosition.x + snakeViewRadius
-        val sensorY = this.y - snakeHeadPosition.y + snakeViewRadius
-        if (sensorX in 1 until sensorMatrixSize && sensorY in 1 until sensorMatrixSize)
+        val sensorX = this.x - snakeHeadPosition.x + logic.Algorithm.Companion.snakeViewRadius
+        val sensorY = this.y - snakeHeadPosition.y + logic.Algorithm.Companion.snakeViewRadius
+        if (sensorX in 1 until logic.Algorithm.Companion.sensorMatrixSize && sensorY in 1 until logic.Algorithm.Companion.sensorMatrixSize)
             return Point(sensorX, sensorY)
         return null
     }

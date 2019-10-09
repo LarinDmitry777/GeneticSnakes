@@ -1,7 +1,7 @@
-import org.junit.jupiter.api.Assertions
+import logic.Algorithm
+import logic.Direction
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.lang.Exception
 
 
 class HelloJunit5Test {
