@@ -57,7 +57,7 @@ class Algorithm : Serializable {
         }
     }
 
-    fun generateDirection(walls: Iterable<Point>, foods: Iterable<Point>, snakeHeadPosition: Point): Direction {
+    fun generateDirection(walls: Iterable<Point>, food: Iterable<Point>, snakeHeadPosition: Point): Direction {
         fun addValuesFromSensors(
             directionPrivilege: MutableMap<Direction, Byte>,
             objectCoords: Iterable<Point>,
@@ -78,7 +78,7 @@ class Algorithm : Serializable {
             directionPrivilege[direction] = 0.toByte()
 
         addValuesFromSensors(directionPrivilege, walls, wallSensors)
-        addValuesFromSensors(directionPrivilege, foods, foodSensors)
+        addValuesFromSensors(directionPrivilege, food, foodSensors)
 
         return directionPrivilege.toList().maxBy { it.second }!!.first
     }
