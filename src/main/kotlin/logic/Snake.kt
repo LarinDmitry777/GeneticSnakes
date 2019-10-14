@@ -7,6 +7,7 @@ class Snake(val cells: ArrayDeque<Point>,
             private val energyForFood: Int) {
 
     var energy = energyForFood
+    var lifeTicksCount = 0
 
     fun getHeadPosition(): Point = cells.first
 
@@ -20,6 +21,7 @@ class Snake(val cells: ArrayDeque<Point>,
     }
 
     fun move(direction: Direction, isEatFood: Boolean) {
+        lifeTicksCount++
         val offset = direction.getOffset()
         cells.addFirst(getHeadPosition() + offset)
         if (!isEatFood)

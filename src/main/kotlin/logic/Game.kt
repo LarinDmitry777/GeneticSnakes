@@ -21,6 +21,7 @@ class Game(
     val snakes: MutableSet<Snake> = mutableSetOf()
     var foodCount = 0
     var maxGeneration = 0
+    var algorithmsLifes = mutableListOf<Pair<Algorithm, Int>>()
     val field = generateSequence {
         generateSequence { EMPTY_CELL }.take(fieldWidth).toMutableList()
     }.take(fieldHeight).toMutableList()
@@ -44,6 +45,15 @@ class Game(
 
 
     fun generateSnakes() {
+        val algorithms = ArrayDeque<Algorithm>()
+        algorithmsLifes.map { it.first }.forEach {
+            algorithms.add(it)
+            algorithms.add(it)
+            println(it)
+        }
+        while(algorithms.size < initSnakesCount)
+            algorithms.add(Algorithm.generateRandomAlgorithm())
+
         fun generateSnake() {
             val emptyCells = fieldPoints.filter { it.y > 4 }.shuffled()
             for (emptyCell in emptyCells) {
@@ -57,7 +67,7 @@ class Game(
                         field[it.y][it.x] = SNAKE_BODY
                     }
                     field[snakeTaleDeque.first.y][snakeTaleDeque.first.x] = SNAKE_HEAD
-                    snakes.add(Snake(snakeTaleDeque, Algorithm.generateRandomAlgorithm(), energyForOneFood))
+                    snakes.add(Snake(snakeTaleDeque, algorithms.pop(), energyForOneFood))
                     break
                 }
             }
@@ -78,21 +88,33 @@ class Game(
                 }
     }
 
+    fun updateAlgorithmsLifes(algorithm: Algorithm, lifeCount: Int) {
+        algorithmsLifes.add(algorithm to lifeCount)
+        algorithmsLifes.sortBy { it.second }
+        algorithmsLifes = algorithmsLifes.take(10).toMutableList()
+    }
+
     fun tick() {
         fun removeSnake(snake: Snake) {
             snakes.remove(snake)
             snake.cells.forEach { field[it.y][it.x] = EMPTY_CELL }
+
         }
 
         fun shareSnake(snake: Snake) {
-            snakes.remove(snake)
+            removeSnake(snake)
             val snake1cells = snake.cells.take(8)
             val snake2cells = snake.cells.reversed().take(8)
             val algorithm = snake.algorithm
+            updateAlgorithmsLifes(snake.algorithm, snake.lifeTicksCount)
             val snake1Algorithm = if (Random().nextInt(4) == 0) Algorithm.mutate(algorithm) else algorithm
             val snake2Algorithm = if (Random().nextInt(4) == 0) Algorithm.mutate(algorithm) else algorithm
+//            val snake1Algorithm = algorithm
+//            val snake2Algorithm = Algorithm.mutate(algorithm)
             val snake1 = Snake(snake1cells.toDeque(), snake1Algorithm, energyForOneFood)
             val snake2 = Snake(snake2cells.toDeque(), snake2Algorithm, energyForOneFood)
+            snake1.cells.forEach { field[it.y][it.x] == SNAKE_BODY }
+            snake2.cells.forEach { field[it.y][it.x] == SNAKE_BODY }
             snakes.add(snake1)
             snakes.add(snake2)
         }
@@ -137,10 +159,11 @@ class Game(
         generateFood()
 
         ConsoleGraphics.drawField(field)
-        if (snakes.size == 0){
+        if (snakes.size == 0) {
             generateSnakes()
             reloadCouter++
             currentTicksCount = 0
+            algorithmsLifes.clear()
         }
 //        ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor()
         println("Snakes count: ${snakes.size}")
@@ -150,5 +173,6 @@ class Game(
         println("Current reload ticks: ${currentTicksCount++}")
         maxGeneration = Math.max(maxGeneration, snakes.map { it.algorithm.num }.max()!!)
         println("Max generation: $maxGeneration")
+        println("Algorithms: ${algorithmsLifes.map { it.second }}")
     }
 }

@@ -5,9 +5,16 @@ import logic.Game
 
 fun main() {
     val algorithm = Algorithm.generateRandomAlgorithm()
-    val game = Game(150, 40, 30, algorithm, 450, energyForOneFood = 20)
-    while(true) {
+    val game = Game(150, 40, 30, algorithm, 200, energyForOneFood = 20)
+
+//    val initTime = System.currentTimeMillis()
+//    for (i in 0 until 100) {
+//        game.tick()
+//    }
+
+    while (true)
         game.tick()
-//        Thread.sleep(100)
-    }
+
+//    val finishTime = System.currentTimeMillis()
+//    println("Millis for 100 ticks: ${finishTime - initTime}")
 }

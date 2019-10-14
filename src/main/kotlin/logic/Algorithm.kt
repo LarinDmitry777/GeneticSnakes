@@ -41,20 +41,33 @@ data class Algorithm(var num: Int = 1) : Serializable {
             return algorithm
         }
 
-        fun mutate(inAlgorithm: Algorithm): Algorithm {
-            val algorithm = inAlgorithm.copy(num = inAlgorithm.num + 1)
-            val valueForMutate = Random().nextInt(10) - 5
-            val directionForMutate = Direction.values().toList().random()
-            val x = Random().nextInt(sensorMatrixSize)
-            val y = Random().nextInt(sensorMatrixSize)
-            val isWallSensorMutate = Random().nextBoolean()
-            if (isWallSensorMutate)
-                algorithm.wallSensors[directionForMutate]!![y][x] =
-                    algorithm.wallSensors[directionForMutate]!![y][x] + valueForMutate
-            else
-                algorithm.foodSensors[directionForMutate]!![y][x] =
-                    algorithm.foodSensors[directionForMutate]!![y][x] + valueForMutate
-            return algorithm
+        fun mutate(oldAlgorithm: Algorithm): Algorithm {
+            val r = Random()
+            val newAlgorithm = Algorithm()
+            Direction.values().forEach { direction ->
+                for (y in 0 until sensorMatrixSize)
+                    for (x in 0 until sensorMatrixSize) {
+                        newAlgorithm.wallSensors[direction]!![y][x] =
+                            oldAlgorithm.wallSensors[direction]!![y][x]
+                        newAlgorithm.foodSensors[direction]!![y][x] =
+                            oldAlgorithm.foodSensors[direction]!![y][x]
+                    }
+            }
+            newAlgorithm.num = oldAlgorithm.num + 1
+            for (i in 0..r.nextInt(7)) {
+                val valueForMutate = r.nextInt(10) - 5
+                val directionForMutate = Direction.values().toList().random()
+                val x = r.nextInt(sensorMatrixSize)
+                val y = r.nextInt(sensorMatrixSize)
+                val isWallSensorMutate = r.nextBoolean()
+                if (isWallSensorMutate)
+                    newAlgorithm.wallSensors[directionForMutate]!![y][x] =
+                        newAlgorithm.wallSensors[directionForMutate]!![y][x] + valueForMutate
+                else
+                    newAlgorithm.foodSensors[directionForMutate]!![y][x] =
+                        newAlgorithm.foodSensors[directionForMutate]!![y][x] + valueForMutate
+            }
+            return newAlgorithm
         }
     }
 
@@ -108,7 +121,8 @@ data class Algorithm(var num: Int = 1) : Serializable {
                         Direction.values().forEach { direction ->
                             val oldValue = directionPrivilege[direction]!!.toDouble()
                             val diff = sensors[direction]!![point.y][point.x].toDouble()
-                            val divide = (max(abs(point.x - snakeViewRadius), abs(point.y - snakeViewRadius))).toDouble()
+                            val divide =
+                                (max(abs(point.x - snakeViewRadius), abs(point.y - snakeViewRadius))).toDouble()
                             val newDiff = diff / divide
                             val newValue = oldValue + newDiff
                             directionPrivilege[direction] = newValue
