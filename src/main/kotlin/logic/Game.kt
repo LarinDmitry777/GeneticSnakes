@@ -149,8 +149,8 @@ class Game(
         val foodCells = fieldPoints.filter { field[it.y][it.x] == FOOD }
         val wallCells =
             fieldPoints.filter { field[it.y][it.x] == WALL || field[it.y][it.x] == SNAKE_HEAD || field[it.y][it.x] == SNAKE_BODY }
-        val snakesMoves = snakes.map { it to it.getMoveDirection(wallCells, foodCells) }
-        snakesMoves.forEach { moveSnake(it.first, it.second) }
+        snakes.map { it to it.getMoveDirection(wallCells, foodCells) }
+            .forEach{moveSnake(it.first, it.second)}
 
         //ToDo Можно ли удалять прям тут
         val snakesWithoutEnergy = snakes.filter { it.energy <= 0 }
