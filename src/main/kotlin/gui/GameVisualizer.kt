@@ -1,39 +1,49 @@
 package gui
 
-import jdk.jfr.Event
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.JPanel;
-import java.awt.*;
-import java.util.Timer
-import java.util.TimerTask
-import javax.swing.JComponent
+import java.util.*
 
 class GameVisualizer (width: Int, height: Int): JPanel(), FieldDrawer{
+    val queue: Queue<(Graphics?) -> Unit> = ArrayDeque<(Graphics?) -> Unit>()
+
+
    // val timer = Timer("e generator", true)
-
-
     init{
-        onRedrawEvent()
+        repaint()
 
         generateField(10, 10)
     }
+
     override fun generateField(width: Int, height: Int) {
-        EventQueue.invokeLater(drawField(width, height))
+        drawField(width, height)
     }
 
-    fun drawField(width: Int, height: Int) : Runnable{
+    fun drawField(width: Int, height: Int){
         //onRedrawEvent()
         val bounds = 20;
-        val offsetW : Int = (this.width - bounds) / width
+        val offsetH : Int = (this.height - 2 * bounds) / height
+        val offsetW : Int = (this.width - 2 * bounds) / width
 
-        graphics.color = Color.BLACK
 
-        for (i in 0..width){
-            graphics.drawLine(bounds, bounds + i * offsetW, this.width - bounds, bounds + i * offsetW)
-        }
+        for (i in 0..height)
+            //graphics.drawLine(bounds, bounds + i * offsetH, this.width - bounds, bounds + i * offsetH)
+            queue.add { drawLine(bounds, bounds + i * offsetH, this.width - bounds, bounds + i * offsetH) }
+
+        for (j in 0..width)
+//            graphics.drawLine(bounds + j * offsetW, bounds, bounds + j * offsetW, this.height - bounds)
+              queue.add { drawLine(bounds + j * offsetW, bounds, bounds + j * offsetW, this.height - bounds) }
+        repaint()
     }
+
+    val drawLine : Function<Int, Int,Int, Int, Unit> = //{(x1: Int, x2: Int, x3: Int, x4: Int) : int-> x1 + x2}
+//    fun drawLine(x1: Int, x2: Int, x3: Int, x4: Int) :(Graphics) -> Unit {g : Graphics? -> {
+//        g!!.drawLine(x1,x2,x3,x4)
+//        println("Line - $x1 $x2 $x3 $x4 ")
+//    }}
+//    fun dr(g: Graphics)
+    //fun drawLine(x1: Int, x2: Int, x3: Int, x4: Int) = {g : Graphics ->  g.drawLine(x1,x2,x3,x4)}
 
     override fun paint(g: Graphics?) {
 //        val width = 10
@@ -44,6 +54,15 @@ class GameVisualizer (width: Int, height: Int): JPanel(), FieldDrawer{
 //        for (i in 0..width){
 //            g.drawLine(bounds, bounds + i * offsetW, this.width - bounds, bounds + i * offsetW)
 //        }
+//        while (!queue.isEmpty()) {
+//            queue.poll()(g)
+//            println(queue.count())
+//        }
+
+        for (e in queue) {
+            e(g)
+            println(e)
+        }
 
     }
 
@@ -52,7 +71,9 @@ class GameVisualizer (width: Int, height: Int): JPanel(), FieldDrawer{
     }
 
     override fun updatedElements(elements: Iterable<FieldElement>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+        repaint()
+
     }
 
 

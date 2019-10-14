@@ -18,7 +18,8 @@ fun main() {
     Timer().schedule(object : TimerTask() {
         override fun run(){
             //TODO делаешь ченить
-            gui.gameWindow.GV.updatedElements(listOf())// и пихаешь
+            //gui.gameWindow.GV.onRedrawEvent()
+            //gui.gameWindow.GV.updatedElements(listOf())// и пихаешь
             // а пихать можно только енамы что в гуе синк эбоут ит
 
         }
