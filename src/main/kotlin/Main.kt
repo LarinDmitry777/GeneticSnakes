@@ -1,5 +1,6 @@
 import logic.Algorithm
 import gui.GUI
+import gui.FieldElement
 import java.io.FileOutputStream
 import java.io.ObjectOutputStream
 import java.util.*
@@ -21,6 +22,7 @@ fun main() {
             //gui.gameWindow.GV.onRedrawEvent()
             //gui.gameWindow.GV.updatedElements(listOf())// и пихаешь
             // а пихать можно только енамы что в гуе синк эбоут ит
+            gui.gameWindow.GV.drawField(listOf(listOf(FieldElement.WALL, FieldElement.SNAKE_BODY), listOf(FieldElement.FOOD, FieldElement.SNAKE_HEAD)))
 
         }
     }, 0, 50)

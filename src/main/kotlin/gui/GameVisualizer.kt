@@ -1,81 +1,98 @@
 package gui
 
 import java.awt.*;
+import java.lang.annotation.ElementType
 
 import javax.swing.JPanel;
 import java.util.*
 
 class GameVisualizer (width: Int, height: Int): JPanel(), FieldDrawer{
-    val queue: Queue<(Graphics?) -> Unit> = ArrayDeque<(Graphics?) -> Unit>()
+
+    var h_cell = 0
+    var w_cell = 0
+    val bounds = 20;
+    var _field: List<List<FieldElement>>? = null
 
 
-   // val timer = Timer("e generator", true)
     init{
-        repaint()
-
         generateField(10, 10)
     }
 
     override fun generateField(width: Int, height: Int) {
-        drawField(width, height)
+        h_cell = width;
+        w_cell = height
+
     }
 
-    fun drawField(width: Int, height: Int){
-        //onRedrawEvent()
-        val bounds = 20;
-        val offsetH : Int = (this.height - 2 * bounds) / height
-        val offsetW : Int = (this.width - 2 * bounds) / width
+    fun drawField(g: Graphics?){
+
+        val offsetH : Int = (this.height - 2 * bounds) / h_cell
+        val offsetW : Int = (this.width - 2 * bounds) / w_cell
+
+        for (i in 0..h_cell)
+            g!!.drawLine(bounds, bounds + i * offsetH, this.width - bounds, bounds + i * offsetH)
+
+        for (j in 0..w_cell)
+            g!!.drawLine(bounds + j * offsetW, bounds, bounds + j * offsetW, this.height - bounds)
+
+        var x = 0
+        var y = 0
+        if (_field === null) return
+        for (line in _field!!) {
+            for (e in line) {
+                when (e){
+                    FieldElement.FOOD -> {
+                        g!!.color = Color.GREEN
+                        g.fillOval(bounds + x * (offsetW ),
+                        bounds + y * (offsetH), offsetW , offsetH)}
+                    FieldElement.SNAKE_BODY -> {
+                        g!!.color = Color.BLUE
+                        g.fillOval(bounds + x * (offsetW ),
+                            bounds + y * (offsetH), offsetW , offsetH)}
+                    FieldElement.SNAKE_HEAD -> {
+                        g!!.color = Color.RED
+                        g.fillOval(bounds + x * (offsetW ),
+                            bounds + y * (offsetH), offsetW , offsetH)}
+
+                    FieldElement.WALL -> {
+                        g!!.color = Color.BLACK
+                        g.fillRect(bounds + x * (offsetW ),
+                            bounds + y * (offsetH), offsetW , offsetH)
+                    }
+                }
+                x++
+
+            }
+            y++
+            x = 0
+        }
 
 
-        for (i in 0..height)
-            //graphics.drawLine(bounds, bounds + i * offsetH, this.width - bounds, bounds + i * offsetH)
-            queue.add { drawLine(bounds, bounds + i * offsetH, this.width - bounds, bounds + i * offsetH) }
-
-        for (j in 0..width)
-//            graphics.drawLine(bounds + j * offsetW, bounds, bounds + j * offsetW, this.height - bounds)
-              queue.add { drawLine(bounds + j * offsetW, bounds, bounds + j * offsetW, this.height - bounds) }
-        repaint()
     }
 
-    val drawLine : Function<Int, Int,Int, Int, Unit> = //{(x1: Int, x2: Int, x3: Int, x4: Int) : int-> x1 + x2}
-//    fun drawLine(x1: Int, x2: Int, x3: Int, x4: Int) :(Graphics) -> Unit {g : Graphics? -> {
-//        g!!.drawLine(x1,x2,x3,x4)
-//        println("Line - $x1 $x2 $x3 $x4 ")
-//    }}
-//    fun dr(g: Graphics)
-    //fun drawLine(x1: Int, x2: Int, x3: Int, x4: Int) = {g : Graphics ->  g.drawLine(x1,x2,x3,x4)}
+    override fun updateDebugInfo(string: Iterable<String>) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun changeFoodCount(newFoodCount: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 
     override fun paint(g: Graphics?) {
-//        val width = 10
-//        val bounds = 20;
-//        val offsetW : Int = (this.width - bounds) / width
-//        g!!.color = Color.BLACK
-//
-//        for (i in 0..width){
-//            g.drawLine(bounds, bounds + i * offsetW, this.width - bounds, bounds + i * offsetW)
-//        }
-//        while (!queue.isEmpty()) {
-//            queue.poll()(g)
-//            println(queue.count())
-//        }
-
-        for (e in queue) {
-            e(g)
-            println(e)
-        }
+        drawField(g)
 
     }
 
     override fun drawField(field: List<List<FieldElement>>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        _field = field
+        EventQueue.invokeLater(this::repaint)
     }
 
     override fun updatedElements(elements: Iterable<FieldElement>) {
 
-        repaint()
-
     }
 
 
-    fun onRedrawEvent() = EventQueue.invokeLater(this::repaint)
+
 }
