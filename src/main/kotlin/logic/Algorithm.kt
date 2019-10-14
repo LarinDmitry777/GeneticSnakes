@@ -1,50 +1,89 @@
 package logic
 
 import java.io.Serializable
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.math.abs
+import kotlin.math.max
 
-class Algorithm : Serializable {
+data class Algorithm(var num: Int = 1) : Serializable {
 
     companion object {
         private const val sensorMatrixSize = 11;
         private const val snakeViewRadius = 5;
-    }
 
 
-    private fun createByteMatrix(size: Int = sensorMatrixSize): Array<Array<Byte>> {
-        return Array(size) { Array(size) { 0.toByte() } }
-    }
+        fun generateRandomAlgorithm(antiKamikaze: Boolean = true, peekNearFood: Boolean = true): Algorithm {
+            val algorithm = Algorithm()
+            val points = mutableListOf<Point>()
+            for (y in 0 until 11)
+                for (x in 0 until 11) {
+                    points.add(Point(x, y))
+                }
+            Direction.values().forEach { direction ->
+                points.forEach { point ->
+                    algorithm.foodSensors[direction]!![point.y][point.x] = Random().nextInt(10) - 5
+                    algorithm.wallSensors[direction]!![point.y][point.x] = Random().nextInt(10) - 5
+                }
+            }
+            if (antiKamikaze) {
+                algorithm.wallSensors[Direction.LEFT]!![5][4] = -25
+                algorithm.wallSensors[Direction.RIGHT]!![5][6] = -25
+                algorithm.wallSensors[Direction.TOP]!![4][5] = -25
+                algorithm.wallSensors[Direction.BOT]!![6][5] = -25
+            }
+            if (peekNearFood) {
+                algorithm.foodSensors[Direction.LEFT]!![5][4] = 25
+                algorithm.foodSensors[Direction.RIGHT]!![5][6] = 25
+                algorithm.foodSensors[Direction.TOP]!![4][5] = 25
+                algorithm.foodSensors[Direction.BOT]!![6][5] = 25
+            }
+            return algorithm
+        }
 
-    private fun createHashMapForSensors(): HashMap<Direction, Array<Array<Byte>>> {
-        return hashMapOf(
-            Direction.TOP to createByteMatrix(),
-            Direction.LEFT to createByteMatrix(),
-            Direction.BOT to createByteMatrix(),
-            Direction.RIGHT to createByteMatrix()
-        )
+        fun mutate(inAlgorithm: Algorithm): Algorithm {
+            val algorithm = inAlgorithm.copy(num = inAlgorithm.num + 1)
+            val valueForMutate = Random().nextInt(10) - 5
+            val directionForMutate = Direction.values().toList().random()
+            val x = Random().nextInt(sensorMatrixSize)
+            val y = Random().nextInt(sensorMatrixSize)
+            val isWallSensorMutate = Random().nextBoolean()
+            if (isWallSensorMutate)
+                algorithm.wallSensors[directionForMutate]!![y][x] =
+                    algorithm.wallSensors[directionForMutate]!![y][x] + valueForMutate
+            else
+                algorithm.foodSensors[directionForMutate]!![y][x] =
+                    algorithm.foodSensors[directionForMutate]!![y][x] + valueForMutate
+            return algorithm
+        }
     }
 
     val foodSensors = createHashMapForSensors()
     val wallSensors = createHashMapForSensors()
 
-    fun getFoodSensors(direction: Direction): Array<Array<Byte>> {
-        return foodSensors[direction]!!
-        //ToDO Почему он может быть null
+    //ToDo методы над полями
+    private fun createMatrix(size: Int = sensorMatrixSize): Array<Array<Int>> {
+        return Array(size) { Array(size) { 0 } }
     }
 
-    fun getWallSensors(direction: Direction): Array<Array<Byte>> {
-        return wallSensors[direction]!!
+    private fun createHashMapForSensors(): HashMap<Direction, Array<Array<Int>>> {
+        return hashMapOf(
+            Direction.TOP to createMatrix(),
+            Direction.LEFT to createMatrix(),
+            Direction.BOT to createMatrix(),
+            Direction.RIGHT to createMatrix()
+        )
     }
 
     fun correctSensors(walls: Iterable<Point>, foods: Iterable<Point>, direction: Direction, snakeHeadPosition: Point) {
-        fun correctSensor(objects: Iterable<Point>, sensor: Array<Array<Byte>>, isCorrectMove: Boolean) {
+        fun correctSensor(objects: Iterable<Point>, sensor: Array<Array<Int>>, isCorrectMove: Boolean) {
             objects.mapNotNull { it.toSnakeSensorsPoint(snakeHeadPosition) }
                 .forEach { point ->
                     if (isCorrectMove)
-                        sensor[point.x][point.y]++ //ToDo как сделать через += тернарка
+                        sensor[point.y][point.x]++ //ToDo как сделать через += тернарка
                     else
-                        sensor[point.x][point.y]--
+                        sensor[point.y][point.x]--
                 }
-
         }
 
         val expectedSnakeDirection = generateDirection(walls, foods, snakeHeadPosition)
@@ -59,23 +98,27 @@ class Algorithm : Serializable {
 
     fun generateDirection(walls: Iterable<Point>, food: Iterable<Point>, snakeHeadPosition: Point): Direction {
         fun addValuesFromSensors(
-            directionPrivilege: MutableMap<Direction, Byte>,
+            directionPrivilege: MutableMap<Direction, Double>,
             objectCoords: Iterable<Point>,
-            sensors: HashMap<Direction, Array<Array<Byte>>>
+            sensors: HashMap<Direction, Array<Array<Int>>>
         ) {
             objectCoords.mapNotNull { it.toSnakeSensorsPoint(snakeHeadPosition) }
                 .forEach { point ->
-                    Direction.values().forEach { direction ->
-                        directionPrivilege[direction] =
-                            (directionPrivilege[direction]!! + sensors[direction]!![point.x][point.y]).toByte()
-                        // ToDO Not null и +=
-                    }
+                    if (point != Point(5, 5))
+                        Direction.values().forEach { direction ->
+                            val oldValue = directionPrivilege[direction]!!.toDouble()
+                            val diff = sensors[direction]!![point.y][point.x].toDouble()
+                            val divide = (max(abs(point.x - snakeViewRadius), abs(point.y - snakeViewRadius))).toDouble()
+                            val newDiff = diff / divide
+                            val newValue = oldValue + newDiff
+                            directionPrivilege[direction] = newValue
+                            // ToDO +=
+                        }
                 }
         }
 
-        val directionPrivilege = mutableMapOf<Direction, Byte>()
-        for (direction in Direction.values())
-            directionPrivilege[direction] = 0.toByte()
+        val directionPrivilege = mutableMapOf<Direction, Double>()
+        Direction.values().forEach { directionPrivilege[it] = 0.toDouble() }
 
         addValuesFromSensors(directionPrivilege, walls, wallSensors)
         addValuesFromSensors(directionPrivilege, food, foodSensors)
@@ -84,9 +127,9 @@ class Algorithm : Serializable {
     }
 
     private fun Point.toSnakeSensorsPoint(snakeHeadPosition: Point): Point? {
-        val sensorX = this.x - snakeHeadPosition.x + logic.Algorithm.Companion.snakeViewRadius
-        val sensorY = this.y - snakeHeadPosition.y + logic.Algorithm.Companion.snakeViewRadius
-        if (sensorX in 1 until logic.Algorithm.Companion.sensorMatrixSize && sensorY in 1 until logic.Algorithm.Companion.sensorMatrixSize)
+        val sensorX = this.x - snakeHeadPosition.x + snakeViewRadius
+        val sensorY = this.y - snakeHeadPosition.y + snakeViewRadius
+        if (sensorX in 1 until sensorMatrixSize && sensorY in 1 until sensorMatrixSize)
             return Point(sensorX, sensorY)
         return null
     }

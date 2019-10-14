@@ -4,10 +4,11 @@ import logic.FieldCell
 
 object ConsoleGraphics : FieldDrawer {
 
-    private const val WALL_CELL_CHAR = '#'
+    private const val WALL_CELL_CHAR = '_'
     private const val EMPTY_CELL_CHAR = ' '
-    private const val SNAKE_BODY_CELL_CHAR = '&'
+    private const val SNAKE_BODY_CELL_CHAR = '#'
     private const val SNAKE_HEAD_CELL_CHAR = '%'
+    private const val FOOD_CELL_CHAR = 'o'
 
     private fun FieldElement.toChar(): Char {
         return when (this) {
@@ -15,7 +16,12 @@ object ConsoleGraphics : FieldDrawer {
             FieldElement.SNAKE_BODY -> SNAKE_BODY_CELL_CHAR
             FieldElement.SNAKE_HEAD -> SNAKE_HEAD_CELL_CHAR
             FieldElement.WALL -> WALL_CELL_CHAR
+            FieldElement.FOOD -> FOOD_CELL_CHAR
         }
+    }
+
+    fun gameTick() {
+
     }
 
     private fun replaceChar(x: Int, y: Int, c: Char) {
@@ -44,16 +50,16 @@ object ConsoleGraphics : FieldDrawer {
         val strings = field.map { s ->
             s.map{it.toChar()}
                 .joinToString("")
-        }.joinToString("\n") { "${WALL_CELL_CHAR}${it}${WALL_CELL_CHAR}" }
+        }.joinToString("\n")
         cleanScreen()
-        println("${horizontalWall}\n${strings}\n${horizontalWall}")
+        println(strings)
     }
 
     override fun updatedElements(elements: Iterable<FieldCell>) {
         elements.forEach{
             replaceChar(it.position.x + 2, it.position.y + 2, it.value.toChar())
         }
-        replaceChar(0, 15, ' ')
+        replaceChar(0, 30, ' ')
     }
 
 }
