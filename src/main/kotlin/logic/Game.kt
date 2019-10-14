@@ -4,6 +4,7 @@ import gui.ConsoleGraphics
 import gui.FieldElement.*
 import gui.toDeque
 import java.util.*
+import kotlin.math.max
 
 class Game(
     private val fieldWidth: Int,
@@ -16,11 +17,14 @@ class Game(
 ) {
     var reloadCouter = 0
     var tickCount = 0
+    var currentTicksCount = 0
     val snakes: MutableSet<Snake> = mutableSetOf()
     var foodCount = 0
+    var maxGeneration = 0
     val field = generateSequence {
         generateSequence { EMPTY_CELL }.take(fieldWidth).toMutableList()
     }.take(fieldHeight).toMutableList()
+
 
     private val fieldPoints = generateSequence { }.take(fieldHeight).mapIndexed { y, _ ->
         generateSequence { }.take(fieldWidth).mapIndexed { x, _ ->
@@ -136,13 +140,15 @@ class Game(
         if (snakes.size == 0){
             generateSnakes()
             reloadCouter++
+            currentTicksCount = 0
         }
 //        ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor()
         println("Snakes count: ${snakes.size}")
         println("Snakes generations: ${snakes.map { it.algorithm.num }.sorted()}")
         println("Count of reloads: $reloadCouter")
         println("Ticks: ${tickCount++}")
+        println("Current reload ticks: ${currentTicksCount++}")
+        maxGeneration = Math.max(maxGeneration, snakes.map { it.algorithm.num }.max()!!)
+        println("Max generation: $maxGeneration")
     }
-
-
 }
