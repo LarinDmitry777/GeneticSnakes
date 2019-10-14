@@ -8,6 +8,6 @@ fun main() {
     val game = Game(150, 40, 30, algorithm, 450, energyForOneFood = 20)
     while(true) {
         game.tick()
-        Thread.sleep(100)
+//        Thread.sleep(100)
     }
 }

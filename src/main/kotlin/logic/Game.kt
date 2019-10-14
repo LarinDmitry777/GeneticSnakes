@@ -15,6 +15,7 @@ class Game(
     private val energyForOneFood: Int = 15
 ) {
     var reloadCouter = 0
+    var tickCount = 0
     val snakes: MutableSet<Snake> = mutableSetOf()
     var foodCount = 0
     val field = generateSequence {
@@ -136,9 +137,11 @@ class Game(
             generateSnakes()
             reloadCouter++
         }
+//        ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor()
         println("Snakes count: ${snakes.size}")
         println("Snakes generations: ${snakes.map { it.algorithm.num }.sorted()}")
         println("Count of reloads: $reloadCouter")
+        println("Ticks: ${tickCount++}")
     }
 
 
