@@ -9,7 +9,7 @@ import kotlin.math.max
 data class Algorithm(var num: Int = 1) : Serializable {
 
     companion object {
-        private const val sensorMatrixSize = 11;
+        const val sensorMatrixSize = 11;
         private const val snakeViewRadius = 5;
 
 

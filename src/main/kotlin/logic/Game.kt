@@ -162,6 +162,7 @@ class Game(
             generateSnakes()
             reloadCouter++
             currentTicksCount = 0
+            foodCount = 0
             algorithmsLifes.clear()
         }
 //        ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor()
