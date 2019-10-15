@@ -11,6 +11,7 @@ object Core {
         Timer().schedule(object : TimerTask() {
             override fun run(){
                 game.tick()
+                GUI.drawField(game.field)
             }
         }, 0, 50)
     }

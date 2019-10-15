@@ -1,7 +1,6 @@
 package logic
 
 import gui.FieldElement.*
-import gui.GUI
 import gui.toDeque
 import java.util.*
 
@@ -39,7 +38,7 @@ class Game(
                     field[y][x] = WALL
         generateSnakes()
         generateFood()
-        GUI.drawField(field)
+
     }
 
 
@@ -157,7 +156,7 @@ class Game(
         snakes.filter { it.cells.size >= 16 }.forEach { shareSnake(it) }
         generateFood()
 
-        GUI.drawField(field)
+
         if (snakes.size == 0) {
             generateSnakes()
             reloadCouter++
