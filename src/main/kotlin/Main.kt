@@ -7,12 +7,8 @@ import java.util.*
 
 fun main() {
     val algorithm = Algorithm.generateRandomAlgorithm()
-<<<<<<< HEAD
-    GUI.generateField(300, 300)
-    val game = Game(300, 300, 300, algorithm, 2000, energyForOneFood = 20)
-=======
-    val game = Game(150, 40, 30, algorithm, 100, energyForOneFood = 20)
->>>>>>> devLogic
+    GUI.generateField(150, 50)
+    val game = Game(150, 50, 30, algorithm, 250, energyForOneFood = 20)
 
 //    val initTime = System.currentTimeMillis()
 //    for (i in 0 until 100) {
