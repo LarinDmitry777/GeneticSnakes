@@ -1,10 +1,9 @@
 package logic
 
-import gui.ConsoleGraphics
 import gui.FieldElement.*
+import gui.GUI
 import gui.toDeque
 import java.util.*
-import kotlin.math.max
 
 class Game(
     private val fieldWidth: Int,
@@ -40,7 +39,7 @@ class Game(
                     field[y][x] = WALL
         generateSnakes()
         generateFood()
-        ConsoleGraphics.drawField(field)
+        GUI.drawField(field)
     }
 
 
@@ -158,7 +157,7 @@ class Game(
         snakes.filter { it.cells.size >= 16 }.forEach { shareSnake(it) }
         generateFood()
 
-        ConsoleGraphics.drawField(field)
+        GUI.drawField(field)
         if (snakes.size == 0) {
             generateSnakes()
             reloadCouter++
