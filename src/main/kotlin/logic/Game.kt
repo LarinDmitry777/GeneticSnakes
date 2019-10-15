@@ -164,7 +164,7 @@ class Game(
             foodCount = 0
             algorithmsLifes.clear()
         }
-//        ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor()
+        ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor()
         println("Snakes count: ${snakes.size}")
         println("Snakes generations: ${snakes.map { it.algorithm.num }.sorted()}")
         println("Count of reloads: $reloadCouter")

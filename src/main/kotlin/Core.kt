@@ -4,10 +4,10 @@ import logic.Game
 import java.util.*
 
 object Core {
-    fun generateGame(w: Int, h: Int){
+    fun generateGame(width: Int, height: Int, initSnakesCount: Int, maxFoodCount: Int, energyForOneFood: Int = 20){
         val algorithm = Algorithm.generateRandomAlgorithm()
-        GUI.generateField(w, h)
-        val game = Game(w, h, 30, algorithm, 250, energyForOneFood = 20)
+        GUI.generateField(width, height)
+        val game = Game(width, height, initSnakesCount, algorithm, maxFoodCount, energyForOneFood = energyForOneFood)
         Timer().schedule(object : TimerTask() {
             override fun run(){
                 game.tick()
