@@ -5,7 +5,7 @@ import logic.Game
 
 fun main() {
     val algorithm = Algorithm.generateRandomAlgorithm()
-    val game = Game(150, 40, 30, algorithm, 200, energyForOneFood = 20)
+    val game = Game(150, 40, 30, algorithm, 100, energyForOneFood = 20)
 
 //    val initTime = System.currentTimeMillis()
 //    for (i in 0 until 100) {
