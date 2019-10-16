@@ -115,6 +115,7 @@ data class Algorithm(var num: Int = 1) : Serializable {
 
         addValuesFromSensors(directionPrivilege, walls, wallSensors)
         addValuesFromSensors(directionPrivilege, food, foodSensors)
+        println(directionPrivilege)
         return directionPrivilege.toList().maxBy { it.second }!!.first
     }
 

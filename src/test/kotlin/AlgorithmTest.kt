@@ -5,6 +5,7 @@ import logic.Direction.*
 import logic.Point
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import java.util.*
 import kotlin.math.min
 
@@ -94,7 +95,7 @@ class AlgorithmTests {
             }
     }
 
-    fun setAlgorithmSensorsCrossValue(algorithm: Algorithm, value: Int) {
+    fun setAlgorithmSensorsCrossValues(algorithm: Algorithm, value: Int) {
         for (x in 0 until 11)
             for (y in 0 until 11) {
                 if (x != 5 || y != 5) {
@@ -126,7 +127,7 @@ class AlgorithmTests {
     @RepeatedTest(100)
     fun `Test algorithm get direction food in distance`() {
         val algorithm = Algorithm()
-        setAlgorithmSensorsCrossValue(algorithm, 100)
+        setAlgorithmSensorsCrossValues(algorithm, 100)
 
         val trueDirection = values().random()
         val falseDirection = trueDirection.inverse()
@@ -142,6 +143,22 @@ class AlgorithmTests {
         val walls = listOf<Point>()
         val direction = algorithm.generateDirection(walls, food, Point(0, 0))
         assertEquals(trueDirection, direction)
+    }
+
+    @RepeatedTest(10)
+    fun `test food behind the wall cross algorithm`() {
+        val algorithm = Algorithm()
+        setAlgorithmSensorsCrossValues(algorithm, 100)
+        Direction.values().forEach { direction ->
+            val wallPoint = direction.toOffset() + Algorithm.MATRIX_CENTER
+            val foodPoint = wallPoint + direction.toOffset()
+            val walls = listOf(wallPoint)
+            val food = listOf(foodPoint)
+            println(wallPoint)
+            println(foodPoint)
+            val snakeDirection = algorithm.generateDirection(walls, food, Algorithm.MATRIX_CENTER)
+            assertFalse(direction == snakeDirection)
+        }
     }
 }
 
