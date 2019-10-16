@@ -173,11 +173,11 @@ class Game(
         }
         ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor()
         println("Snakes count: ${snakes.size}")
-        println("Snakes generations: ${snakes.map { it.algorithm.num }.sorted()}")
+        println("Snakes generations: ${snakes.map { it.algorithm.generation }.sorted()}")
         println("Count of reloads: $reloadCouter")
         println("Ticks: ${tickCount++}")
         println("Current reload ticks: ${currentTicksCount++}")
-        maxGeneration = Math.max(maxGeneration, snakes.map { it.algorithm.num }.max()!!)
+        maxGeneration = Math.max(maxGeneration, snakes.map { it.algorithm.generation }.max()!!)
         println("Max generation: $maxGeneration")
         println("Algorithms: ${algorithmsLifes.map { it.second }}")
     }

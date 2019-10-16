@@ -154,8 +154,6 @@ class AlgorithmTests {
             val foodPoint = wallPoint + direction.toOffset()
             val walls = listOf(wallPoint)
             val food = listOf(foodPoint)
-            println(wallPoint)
-            println(foodPoint)
             val snakeDirection = algorithm.generateDirection(walls, food, Algorithm.MATRIX_CENTER)
             assertFalse(direction == snakeDirection)
         }

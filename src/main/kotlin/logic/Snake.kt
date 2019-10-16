@@ -2,13 +2,16 @@ package logic
 
 import java.util.*
 
-class Snake(val cells: ArrayDeque<Point>,
-            val algorithm: Algorithm,
-            private val energyForFood: Int) {
+class Snake(
+    val cells: ArrayDeque<Point>,
+    val algorithm: Algorithm,
+    private val energyForFood: Int
+) {
 
     var energy = energyForFood
     var lifeTicksCount = 0
 
+    //ToDO Как сделать полем
     fun getHeadPosition(): Point = cells.first
 
     fun getMoveDirection(walls: Iterable<Point>, food: Iterable<Point>): Direction {
@@ -27,7 +30,7 @@ class Snake(val cells: ArrayDeque<Point>,
         if (!isEatFood)
             cells.removeLast()
         energy--
-        if (energy <= 0 && cells.count() > 4){
+        if (energy <= 0 && cells.count() > 4) {
             cells.removeLast()
             energy = energyForFood
         }

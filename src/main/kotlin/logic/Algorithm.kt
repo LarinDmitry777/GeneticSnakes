@@ -1,12 +1,15 @@
 package logic
 
+import getRandomNumberInRange
 import java.io.Serializable
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.abs
 import kotlin.math.max
 
-data class Algorithm(var num: Int = 1) : Serializable {
+data class Algorithm(
+    var generation: Int = 1
+) : Serializable {
 
     companion object {
         const val SNAKE_VIEW_RADIUS = 5
@@ -44,9 +47,14 @@ data class Algorithm(var num: Int = 1) : Serializable {
             return algorithm
         }
 
-        fun mutate(oldAlgorithm: Algorithm): Algorithm {
+        fun mutate(
+            oldAlgorithm: Algorithm,
+            mutateCount: Int = Config.MUTATE_COUNT_PER_DIVISION,
+            mutateRange: Int = Config.MUTATE_RANGE
+        ): Algorithm {
             val r = Random()
             val newAlgorithm = Algorithm()
+            //ToDO Как сделать нормальное копирование
             Direction.values().forEach { direction ->
                 for (y in 0 until SENSOR_MATRIX_SIZE)
                     for (x in 0 until SENSOR_MATRIX_SIZE) {
@@ -56,9 +64,11 @@ data class Algorithm(var num: Int = 1) : Serializable {
                             oldAlgorithm.foodSensors[direction]!![y][x]
                     }
             }
-            newAlgorithm.num = oldAlgorithm.num + 1
-            for (i in 0..r.nextInt(7)) {
-                val valueForMutate = r.nextInt(10) - 5
+
+            newAlgorithm.generation = oldAlgorithm.generation + 1
+            //ToDo Сделать так, чтобы мутация не происходила на одних и тех-же датчиках
+            for (i in 0 until r.nextInt(mutateCount)) {
+                val valueForMutate = getRandomNumberInRange(-mutateRange, mutateRange)
                 val directionForMutate = Direction.values().toList().random()
                 val x = r.nextInt(SENSOR_MATRIX_SIZE)
                 val y = r.nextInt(SENSOR_MATRIX_SIZE)
@@ -115,7 +125,6 @@ data class Algorithm(var num: Int = 1) : Serializable {
 
         addValuesFromSensors(directionPrivilege, walls, wallSensors)
         addValuesFromSensors(directionPrivilege, food, foodSensors)
-        println(directionPrivilege)
         return directionPrivilege.toList().maxBy { it.second }!!.first
     }
 
@@ -126,8 +135,6 @@ data class Algorithm(var num: Int = 1) : Serializable {
             return Point(sensorX, sensorY)
         return null
     }
-
-
 }
 
 //    fun correctSensors(walls: Iterable<Point>, foods: Iterable<Point>, direction: Direction, snakeHeadPosition: Point) {
@@ -135,7 +142,7 @@ data class Algorithm(var num: Int = 1) : Serializable {
 ////            objects.mapNotNull { it.toSnakeSensorsPoint(snakeHeadPosition) }
 ////                .forEach { point ->
 ////                    if (isCorrectMove)
-////                        sensor[point.y][point.x]++ //ToDo как сделать через += тернарка
+////                        sensor[point.y][point.x]++
 ////                    else
 ////                        sensor[point.y][point.x]--
 ////                }
