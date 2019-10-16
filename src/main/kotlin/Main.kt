@@ -6,5 +6,5 @@ import gui.GUI
 import java.util.*
 
 fun main() {
-    Core.generateGame(300, 100, 120, 800)
+    Core.generateGame(150, 50, 30, 200)
 }

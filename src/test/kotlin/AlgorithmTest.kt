@@ -1,37 +1,40 @@
 import logic.Algorithm
 import logic.Config
 import logic.Direction
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+import logic.Direction.*
+import logic.Point
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.RepeatedTest
+import java.util.*
+import kotlin.math.min
 
 
 class AlgorithmTests {
-    @Test
-    fun `test random algorithm create sensors values range`() {
+    @RepeatedTest(3)
+    fun `Test sensors values in range of random algorithm`() {
         val randomAlgorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = false, peekNearFood = false)
         var isMaxValueFoodExist = false
         var isMaxValueWallExist = false
         var isMinValueFoodExist = false
         var isMinValueWallExist = false
-        Direction.values().forEach { direction ->
-            for (x in 0 until Algorithm.sensorMatrixSize)
-                for (y in 0 until Algorithm.sensorMatrixSize) {
+        values().forEach { direction ->
+            for (x in 0 until Algorithm.SENSOR_MATRIX_SIZE)
+                for (y in 0 until Algorithm.SENSOR_MATRIX_SIZE) {
                     val wallSensorValue = randomAlgorithm.wallSensors[direction]!![y][x]
                     val foodSensorValue = randomAlgorithm.foodSensors[direction]!![y][x]
-                    if (wallSensorValue == Config.algorithmSensorsDispersion)
+                    if (wallSensorValue == Config.ALGORITHM_SENSOR_DISPERSION)
                         isMaxValueWallExist = true
-                    if (wallSensorValue == -Config.algorithmSensorsDispersion)
+                    if (wallSensorValue == -Config.ALGORITHM_SENSOR_DISPERSION)
                         isMinValueWallExist = true
-                    if (foodSensorValue == Config.algorithmSensorsDispersion)
+                    if (foodSensorValue == Config.ALGORITHM_SENSOR_DISPERSION)
                         isMaxValueFoodExist = true
-                    if (foodSensorValue == -Config.algorithmSensorsDispersion)
-                        isMaxValueFoodExist = true
+                    if (foodSensorValue == -Config.ALGORITHM_SENSOR_DISPERSION)
+                        isMinValueFoodExist = true
 
-                    assertTrue(wallSensorValue <= Config.algorithmSensorsDispersion)
-                    assertTrue(wallSensorValue >= Config.algorithmSensorsDispersion)
-                    assertTrue(foodSensorValue >= Config.algorithmSensorsDispersion)
-                    assertTrue(foodSensorValue >= Config.algorithmSensorsDispersion)
+                    assertTrue(wallSensorValue <= Config.ALGORITHM_SENSOR_DISPERSION)
+                    assertTrue(wallSensorValue >= -Config.ALGORITHM_SENSOR_DISPERSION)
+                    assertTrue(foodSensorValue <= Config.ALGORITHM_SENSOR_DISPERSION)
+                    assertTrue(foodSensorValue >= -Config.ALGORITHM_SENSOR_DISPERSION)
 
                 }
             assertTrue(isMaxValueFoodExist)
@@ -41,4 +44,104 @@ class AlgorithmTests {
         }
     }
 
+    @RepeatedTest(100)
+    fun `Test random algorithm anti kamikaze one wall`() {
+        val algorihtm = Algorithm.generateRandomAlgorithm(antiKamikaze = true, peekNearFood = false)
+        val snakeHead = Point(5, 5)
+        values().forEach { direction ->
+            val food = listOf<Point>()
+            val walls = listOf(direction.toOffset() + snakeHead)
+            val directionToMove = algorihtm.generateDirection(walls, food, snakeHead)
+            assertFalse(directionToMove == direction)
+        }
+    }
+
+    @RepeatedTest(100)
+    fun `Test random algorithm anti kamikaze three wall`() {
+        val algorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = true, peekNearFood = false)
+        val snakeHead = Point(5, 5)
+        values().forEach { direction ->
+            val food = listOf<Point>()
+            val walls = values()
+                .filter { it != direction }
+                .map { it.toOffset() + snakeHead }
+                .toList()
+            val directionToMove = algorithm.generateDirection(walls, food, snakeHead)
+            assertEquals(direction, directionToMove)
+        }
+    }
+
+    @RepeatedTest(100)
+    fun `Test random algorithm peek near food one food`() {
+        val algorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = false, peekNearFood = true)
+        val snakeHead = Point(5, 5)
+        val walls = listOf<Point>()
+        values().forEach { direction ->
+            val food = listOf(direction.toOffset() + snakeHead)
+            val directionToMove = algorithm.generateDirection(walls, food, snakeHead)
+            assertEquals(direction, directionToMove)
+
+        }
+    }
+
+    fun setAlgorithmSensorsFixedValues(algorithm: Algorithm, value: Int) {
+        for (x in 0 until 11)
+            for (y in 0 until 11) {
+                values().forEach { direction ->
+                    algorithm.foodSensors[direction]!![y][x] = value
+                    algorithm.wallSensors[direction]!![y][x] = value
+                }
+            }
+    }
+
+    fun setAlgorithmSensorsCrossValue(algorithm: Algorithm, value: Int) {
+        for (x in 0 until 11)
+            for (y in 0 until 11) {
+                if (x != 5 || y != 5) {
+                    if (x == 5) {
+                        if (y < 5) {
+                            algorithm.foodSensors[TOP]!![y][x] = value
+                            algorithm.wallSensors[TOP]!![y][x] = -value
+                        }
+                        if (y > 5) {
+                            algorithm.foodSensors[BOT]!![y][x] = value
+                            algorithm.wallSensors[BOT]!![y][x] = -value
+                        }
+                    }
+                    if (y == 5) {
+                        if (x < 5) {
+                            algorithm.foodSensors[LEFT]!![y][x] = value
+                            algorithm.wallSensors[LEFT]!![y][x] = -value
+                        }
+                        if (x > 5) {
+                            algorithm.foodSensors[RIGHT]!![y][x] = value
+                            algorithm.wallSensors[RIGHT]!![y][x] = -value
+                        }
+                    }
+                }
+            }
+    }
+
+
+    @RepeatedTest(100)
+    fun `Test algorithm get direction food in distance`() {
+        val algorithm = Algorithm()
+        setAlgorithmSensorsCrossValue(algorithm, 100)
+
+        val trueDirection = values().random()
+        val falseDirection = trueDirection.inverse()
+        val trueDistance = getRandomNumberInRange(1, 4)
+        val falseDistance = getRandomNumberInRange(trueDistance + 1, 5)
+
+
+        val truePoint = trueDirection.toOffset() * trueDistance
+        val falsePoint = falseDirection.toOffset() * falseDistance
+
+
+        val food = listOf(truePoint, falsePoint)
+        val walls = listOf<Point>()
+        val direction = algorithm.generateDirection(walls, food, Point(0, 0))
+        assertEquals(trueDirection, direction)
+    }
 }
+

@@ -13,6 +13,6 @@ object Core {
                 game.tick()
                 GUI.drawField(game.field)
             }
-        }, 0, 50)
+        }, 0, 1)
     }
 }

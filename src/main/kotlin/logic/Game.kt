@@ -1,7 +1,8 @@
 package logic
 
+import gui.FieldElement
 import gui.FieldElement.*
-import gui.toDeque
+import toDeque
 import java.util.*
 
 class Game(
@@ -20,27 +21,32 @@ class Game(
     var foodCount = 0
     var maxGeneration = 0
     var algorithmsLifes = mutableListOf<Pair<Algorithm, Int>>()
-    val field = generateSequence {
-        generateSequence { EMPTY_CELL }.take(fieldWidth).toMutableList()
-    }.take(fieldHeight).toMutableList()
 
-
-    private val fieldPoints = generateSequence { }.take(fieldHeight).mapIndexed { y, _ ->
+    var field = generateEmptyField()
+    val fieldPoints = generateSequence { }.take(fieldHeight).mapIndexed { y, _ ->
         generateSequence { }.take(fieldWidth).mapIndexed { x, _ ->
             Point(x, y)
         }.toList()
     }.toList().flatten()
 
     init {
-        for (x in 0 until fieldWidth)
-            for (y in 0 until fieldHeight)
-                if (x == 0 || y == 0 || x == fieldWidth - 1 || y == fieldHeight - 1)
-                    field[y][x] = WALL
+
         generateSnakes()
         generateFood()
 
     }
 
+    fun generateEmptyField(): MutableList<MutableList<FieldElement>> {
+        val field = generateSequence {
+            generateSequence { EMPTY_CELL }.take(fieldWidth).toMutableList()
+        }.take(fieldHeight).toMutableList()
+
+        for (x in 0 until fieldWidth)
+            for (y in 0 until fieldHeight)
+                if (x == 0 || y == 0 || x == fieldWidth - 1 || y == fieldHeight - 1)
+                    field[y][x] = WALL
+        return field
+    }
 
     fun generateSnakes() {
         val algorithms = ArrayDeque<Algorithm>()
@@ -49,7 +55,7 @@ class Game(
             algorithms.add(it)
             println(it)
         }
-        while(algorithms.size < initSnakesCount)
+        while (algorithms.size < initSnakesCount)
             algorithms.add(Algorithm.generateRandomAlgorithm())
 
         fun generateSnake() {
@@ -119,7 +125,7 @@ class Game(
 
         fun moveSnake(snake: Snake, direction: Direction) {
             val head = snake.getHeadPosition()
-            val offset = direction.getOffset()
+            val offset = direction.toOffset()
             val newHeadPosition = head + offset
             if (newHeadPosition.x !in 0 until fieldWidth || newHeadPosition.y !in 0 until fieldHeight) {
                 removeSnake(snake)
@@ -148,7 +154,7 @@ class Game(
         val wallCells =
             fieldPoints.filter { field[it.y][it.x] == WALL || field[it.y][it.x] == SNAKE_HEAD || field[it.y][it.x] == SNAKE_BODY }
         snakes.map { it to it.getMoveDirection(wallCells, foodCells) }
-            .forEach{moveSnake(it.first, it.second)}
+            .forEach { moveSnake(it.first, it.second) }
 
         //ToDo Можно ли удалять прям тут
         val snakesWithoutEnergy = snakes.filter { it.energy <= 0 }
@@ -158,6 +164,7 @@ class Game(
 
 
         if (snakes.size == 0) {
+            field = generateEmptyField()
             generateSnakes()
             reloadCouter++
             currentTicksCount = 0

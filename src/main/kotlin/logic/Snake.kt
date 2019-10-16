@@ -16,13 +16,13 @@ class Snake(val cells: ArrayDeque<Point>,
         return moveTo
     }
 
-    fun correctSensors(walls: Iterable<Point>, food: Iterable<Point>, direction: Direction) {
-        algorithm.correctSensors(walls, food, direction, getHeadPosition())
-    }
+//    fun correctSensors(walls: Iterable<Point>, food: Iterable<Point>, direction: Direction) {
+//        algorithm.correctSensors(walls, food, direction, getHeadPosition())
+//    }
 
     fun move(direction: Direction, isEatFood: Boolean) {
         lifeTicksCount++
-        val offset = direction.getOffset()
+        val offset = direction.toOffset()
         cells.addFirst(getHeadPosition() + offset)
         if (!isEatFood)
             cells.removeLast()
