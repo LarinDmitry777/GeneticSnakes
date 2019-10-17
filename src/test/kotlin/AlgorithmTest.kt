@@ -206,5 +206,38 @@ class AlgorithmTests {
             assertEquals(mutateCount, diffCount)
         }
     }
+
+    @Test
+    fun `Test mutation value`() {
+        val mutateCount = 100
+        val algorithm = Algorithm.generateRandomAlgorithm()
+        val newAlgorithm = algorithm.getMutatedClone(mutateCount = mutateCount)
+        Direction.values().forEach { direction ->
+            for (x in 0 until Algorithm.SENSOR_MATRIX_SIZE)
+                for (y in 0 until Algorithm.SENSOR_MATRIX_SIZE) {
+                    if (algorithm.foodSensors[direction]!![y][x] != newAlgorithm.foodSensors[direction]!![y][x]) {
+                        val oldValue = algorithm.foodSensors[direction]!![y][x]
+                        val newValue = algorithm.wallSensors[direction]!![y][x]
+                        assertTrue(newValue <= oldValue + Config.MUTATE_RANGE && newValue >= oldValue - Config.MUTATE_RANGE)
+                    }
+                    if (algorithm.wallSensors[direction]!![y][x] != newAlgorithm.wallSensors[direction]!![y][x]) {
+                        val oldValue = algorithm.wallSensors[direction]!![y][x]
+                        val newValue = algorithm.wallSensors[direction]!![y][x]
+                        assertTrue(newValue <= oldValue + Config.MUTATE_RANGE && newValue >= oldValue - Config.MUTATE_RANGE)
+                    }
+                }
+        }
+    }
+
+    @Test
+    fun `test mutation generation value`() {
+        var algorithm = Algorithm.generateRandomAlgorithm()
+        assertEquals(1, algorithm.generation)
+        for (i in 2 until 10) {
+            algorithm = algorithm.getMutatedClone()
+            assertEquals(i, algorithm.generation)
+        }
+    }
+
 }
 

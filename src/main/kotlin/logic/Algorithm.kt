@@ -8,6 +8,7 @@ import kotlin.collections.HashSet
 import kotlin.math.abs
 import kotlin.math.max
 
+//ToDO рефакторить
 data class Algorithm(
     var generation: Int = 1
 ) : Serializable {
