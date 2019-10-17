@@ -4,6 +4,7 @@ import getRandomNumberInRange
 import java.io.Serializable
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -46,46 +47,56 @@ data class Algorithm(
             }
             return algorithm
         }
+    }
 
-        fun mutate(
-            oldAlgorithm: Algorithm,
-            mutateCount: Int = Config.MUTATE_COUNT_PER_DIVISION,
-            mutateRange: Int = Config.MUTATE_RANGE
-        ): Algorithm {
-            val r = Random()
-            val newAlgorithm = Algorithm()
-            //ToDO Как сделать нормальное копирование
-            Direction.values().forEach { direction ->
-                for (y in 0 until SENSOR_MATRIX_SIZE)
-                    for (x in 0 until SENSOR_MATRIX_SIZE) {
-                        newAlgorithm.wallSensors[direction]!![y][x] =
-                            oldAlgorithm.wallSensors[direction]!![y][x]
-                        newAlgorithm.foodSensors[direction]!![y][x] =
-                            oldAlgorithm.foodSensors[direction]!![y][x]
-                    }
-            }
+    fun getMutatedClone(
+        mutateCount: Int = Config.MUTATE_COUNT_PER_DIVISION,
+        mutateRange: Int = Config.MUTATE_RANGE
+    ): Algorithm {
+        val r = Random()
+        val newAlgorithm = this.clone()
+        newAlgorithm.generation = this.generation + 1
+        val mutatedSensors = HashSet<String>()
 
-            newAlgorithm.generation = oldAlgorithm.generation + 1
-            //ToDo Сделать так, чтобы мутация не происходила на одних и тех-же датчиках
-            for (i in 0 until r.nextInt(mutateCount)) {
-                val valueForMutate = getRandomNumberInRange(-mutateRange, mutateRange)
+        for (i in 0 until mutateCount) {
+            while (true) {
+                val valueForMutate = getRandomNumberInRange(-mutateRange, mutateRange, isNeedZero = false)
                 val directionForMutate = Direction.values().toList().random()
                 val x = r.nextInt(SENSOR_MATRIX_SIZE)
                 val y = r.nextInt(SENSOR_MATRIX_SIZE)
                 val isWallSensorMutate = r.nextBoolean()
-                if (isWallSensorMutate)
-                    newAlgorithm.wallSensors[directionForMutate]!![y][x] =
-                        newAlgorithm.wallSensors[directionForMutate]!![y][x] + valueForMutate
-                else
-                    newAlgorithm.foodSensors[directionForMutate]!![y][x] =
-                        newAlgorithm.foodSensors[directionForMutate]!![y][x] + valueForMutate
+                val mutatedSensor = "$isWallSensorMutate $directionForMutate $x $y"
+                if (mutatedSensor !in mutatedSensors) {
+                    if (isWallSensorMutate)
+                        newAlgorithm.wallSensors[directionForMutate]!![y][x] =
+                            newAlgorithm.wallSensors[directionForMutate]!![y][x] + valueForMutate
+                    else
+                        newAlgorithm.foodSensors[directionForMutate]!![y][x] =
+                            newAlgorithm.foodSensors[directionForMutate]!![y][x] + valueForMutate
+                    mutatedSensors.add(mutatedSensor)
+                    break
+                }
             }
-            return newAlgorithm
         }
+        return newAlgorithm
     }
 
-    val foodSensors = createHashMapForSensors()
-    val wallSensors = createHashMapForSensors()
+    fun clone(): Algorithm {
+        val newAlgorithm = Algorithm()
+        Direction.values().forEach { direction ->
+            for (y in 0 until Algorithm.SENSOR_MATRIX_SIZE)
+                for (x in 0 until Algorithm.SENSOR_MATRIX_SIZE) {
+                    newAlgorithm.foodSensors[direction]!![y][x] = this.foodSensors[direction]!![y][x]
+                    newAlgorithm.wallSensors[direction]!![y][x] = this.wallSensors[direction]!![y][x]
+                }
+        }
+        return newAlgorithm
+    }
+
+    var foodSensors = createHashMapForSensors()
+        private set
+    var wallSensors = createHashMapForSensors()
+        private set
 
     private fun createHashMapForSensors(): HashMap<Direction, Array<Array<Int>>> {
         fun createMatrix() = Array(SENSOR_MATRIX_SIZE) { Array(SENSOR_MATRIX_SIZE) { 0 } }

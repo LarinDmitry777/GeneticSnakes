@@ -158,5 +158,53 @@ class AlgorithmTests {
             assertFalse(direction == snakeDirection)
         }
     }
+
+    @RepeatedTest(3)
+    fun `test algorithm clone`() {
+        val oldAlgorithm = Algorithm.generateRandomAlgorithm()
+        val newAlgorithm = oldAlgorithm.clone()
+
+        assertFalse(oldAlgorithm.wallSensors === newAlgorithm.wallSensors)
+        assertFalse(oldAlgorithm.foodSensors === newAlgorithm.foodSensors)
+
+        Direction.values().forEach { direction ->
+            assertFalse(oldAlgorithm.wallSensors[direction] === newAlgorithm.wallSensors[direction])
+            assertFalse(oldAlgorithm.foodSensors[direction] === newAlgorithm.foodSensors[direction])
+
+            for (y in 0 until Algorithm.SENSOR_MATRIX_SIZE) {
+                assertFalse(oldAlgorithm.wallSensors[direction]!![y] === newAlgorithm.wallSensors[direction]!![y])
+                assertFalse(oldAlgorithm.foodSensors[direction]!![y] === newAlgorithm.foodSensors[direction]!![y])
+
+                for (x in 0 until Algorithm.SENSOR_MATRIX_SIZE) {
+                    assertEquals(
+                        oldAlgorithm.wallSensors[direction]!![y][x],
+                        newAlgorithm.wallSensors[direction]!![y][x]
+                    )
+                    assertEquals(
+                        oldAlgorithm.foodSensors[direction]!![y][x],
+                        newAlgorithm.foodSensors[direction]!![y][x]
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `Test mutation count`() {
+        for (i in 0..100) {
+            val mutateCount = i
+            val algorithm = Algorithm.generateRandomAlgorithm()
+            val newAlgorithm = algorithm.getMutatedClone(mutateCount = mutateCount)
+            var diffCount = 0
+            Direction.values().forEach { direction ->
+                for (x in 0 until Algorithm.SENSOR_MATRIX_SIZE)
+                    for (y in 0 until Algorithm.SENSOR_MATRIX_SIZE) {
+                        if (algorithm.foodSensors[direction]!![y][x] != newAlgorithm.foodSensors[direction]!![y][x]) diffCount++
+                        if (algorithm.wallSensors[direction]!![y][x] != newAlgorithm.wallSensors[direction]!![y][x]) diffCount++
+                    }
+            }
+            assertEquals(mutateCount, diffCount)
+        }
+    }
 }
 

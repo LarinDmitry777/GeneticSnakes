@@ -30,10 +30,8 @@ class Game(
     }.toList().flatten()
 
     init {
-
         generateSnakes()
         generateFood()
-
     }
 
     fun generateEmptyField(): MutableList<MutableList<FieldElement>> {
@@ -111,8 +109,8 @@ class Game(
             val snake2cells = snake.cells.reversed().take(8)
             val algorithm = snake.algorithm
             updateAlgorithmsLifes(snake.algorithm, snake.lifeTicksCount)
-            val snake1Algorithm = if (Random().nextInt(4) == 0) Algorithm.mutate(algorithm) else algorithm
-            val snake2Algorithm = if (Random().nextInt(4) == 0) Algorithm.mutate(algorithm) else algorithm
+            val snake1Algorithm = if (Random().nextInt(4) == 0) algorithm.getMutatedClone() else algorithm
+            val snake2Algorithm = if (Random().nextInt(4) == 0) algorithm.getMutatedClone() else algorithm
 //            val snake1Algorithm = algorithm
 //            val snake2Algorithm = Algorithm.mutate(algorithm)
             val snake1 = Snake(snake1cells.toDeque(), snake1Algorithm, energyForOneFood)
