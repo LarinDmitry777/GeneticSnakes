@@ -1,6 +1,8 @@
 package logic
 
-enum class Direction {
+import java.io.Serializable
+
+enum class Direction: Serializable {
     TOP, BOT, LEFT, RIGHT;
 
     fun toOffset(): Point {

@@ -9,7 +9,7 @@ import kotlin.math.abs
 import kotlin.math.max
 
 //ToDO рефакторить
-data class Algorithm(
+data class Algorithm    (
     var generation: Int = 1
 ) : Serializable {
 
@@ -19,33 +19,40 @@ data class Algorithm(
         val MATRIX_CENTER = Point(SNAKE_VIEW_RADIUS, SNAKE_VIEW_RADIUS)
 
 
-        fun generateRandomAlgorithm(antiKamikaze: Boolean = true, peekNearFood: Boolean = true): Algorithm {
-            val algorithm = Algorithm()
-            val random = Random()
-
-            for (x in 0 until SENSOR_MATRIX_SIZE)
-                for (y in 0 until SENSOR_MATRIX_SIZE) {
-                    Direction.values().forEach { direction ->
-                        algorithm.foodSensors[direction]!![y][x] =
-                            random.nextInt(Config.ALGORITHM_SENSOR_DISPERSION * 2 + 1) - Config.ALGORITHM_SENSOR_DISPERSION
-                        algorithm.wallSensors[direction]!![y][x] =
-                            random.nextInt(Config.ALGORITHM_SENSOR_DISPERSION * 2 + 1) - Config.ALGORITHM_SENSOR_DISPERSION
-                    }
-                }
-
-            if (antiKamikaze || peekNearFood) {
-                val matrixCenter = Point(SNAKE_VIEW_RADIUS, SNAKE_VIEW_RADIUS)
-                Direction.values()
-                    .forEach { direction ->
-                        val cellsCoordinates = direction.toOffset() + matrixCenter
-                        if (antiKamikaze)
-                            algorithm.wallSensors[direction]!![cellsCoordinates.y][cellsCoordinates.x] =
-                                -Config.ALGORITHM_RANDOM_FIXED_CELLS_VALUE
-                        if (peekNearFood)
-                            algorithm.foodSensors[direction]!![cellsCoordinates.y][cellsCoordinates.x] =
-                                Config.ALGORITHM_RANDOM_FIXED_CELLS_VALUE
+        fun generateRandomAlgorithm(antiKamikaze: Boolean = true, nearFoodPriority: Boolean = true): Algorithm {
+            fun randomizeSensorsValues(algorithm: Algorithm) {
+                val random = Random()
+                for (x in 0 until SENSOR_MATRIX_SIZE)
+                    for (y in 0 until SENSOR_MATRIX_SIZE) {
+                        Direction.values().forEach { direction ->
+                            algorithm.foodSensors[direction]!![y][x] =
+                                random.nextInt(Config.ALGORITHM_SENSOR_DISPERSION * 2 + 1) - Config.ALGORITHM_SENSOR_DISPERSION
+                            algorithm.wallSensors[direction]!![y][x] =
+                                random.nextInt(Config.ALGORITHM_SENSOR_DISPERSION * 2 + 1) - Config.ALGORITHM_SENSOR_DISPERSION
+                        }
                     }
             }
+
+            fun setAntiKamikaze(algorithm: Algorithm) {
+                Direction.values().forEach { direction ->
+                    val cellsCoordinates = direction.toOffset() + MATRIX_CENTER
+                    algorithm.wallSensors[direction]!![cellsCoordinates.y][cellsCoordinates.x] =
+                        -Config.ALGORITHM_RANDOM_FIXED_CELLS_VALUE
+                }
+            }
+
+            fun setNearFoodSensorPriority(algorithm: Algorithm) {
+                Direction.values().forEach { direction ->
+                    val cellsCoordinates = direction.toOffset() + MATRIX_CENTER
+                    algorithm.foodSensors[direction]!![cellsCoordinates.y][cellsCoordinates.x] =
+                        Config.ALGORITHM_RANDOM_FIXED_CELLS_VALUE
+                }
+            }
+
+            val algorithm = Algorithm()
+            randomizeSensorsValues(algorithm)
+            if (antiKamikaze) setAntiKamikaze(algorithm)
+            if (nearFoodPriority) setNearFoodSensorPriority(algorithm)
             return algorithm
         }
     }
@@ -85,8 +92,8 @@ data class Algorithm(
     fun clone(): Algorithm {
         val newAlgorithm = Algorithm()
         Direction.values().forEach { direction ->
-            for (y in 0 until Algorithm.SENSOR_MATRIX_SIZE)
-                for (x in 0 until Algorithm.SENSOR_MATRIX_SIZE) {
+            for (y in 0 until SENSOR_MATRIX_SIZE)
+                for (x in 0 until SENSOR_MATRIX_SIZE) {
                     newAlgorithm.foodSensors[direction]!![y][x] = this.foodSensors[direction]!![y][x]
                     newAlgorithm.wallSensors[direction]!![y][x] = this.wallSensors[direction]!![y][x]
                 }
@@ -94,10 +101,8 @@ data class Algorithm(
         return newAlgorithm
     }
 
-    var foodSensors = createHashMapForSensors()
-        private set
-    var wallSensors = createHashMapForSensors()
-        private set
+    val foodSensors = createHashMapForSensors()
+    val wallSensors = createHashMapForSensors()
 
     private fun createHashMapForSensors(): HashMap<Direction, Array<Array<Int>>> {
         fun createMatrix() = Array(SENSOR_MATRIX_SIZE) { Array(SENSOR_MATRIX_SIZE) { 0 } }
@@ -148,24 +153,3 @@ data class Algorithm(
         return null
     }
 }
-
-//    fun correctSensors(walls: Iterable<Point>, foods: Iterable<Point>, direction: Direction, snakeHeadPosition: Point) {
-////        fun correctSensor(objects: Iterable<Point>, sensor: Array<Array<Int>>, isCorrectMove: Boolean) {
-////            objects.mapNotNull { it.toSnakeSensorsPoint(snakeHeadPosition) }
-////                .forEach { point ->
-////                    if (isCorrectMove)
-////                        sensor[point.y][point.x]++
-////                    else
-////                        sensor[point.y][point.x]--
-////                }
-////        }
-////
-////        val expectedSnakeDirection = generateDirection(walls, foods, snakeHeadPosition)
-////        correctSensor(walls, wallSensors[direction]!!, true)
-////        correctSensor(foods, foodSensors[direction]!!, true)
-////
-////        if (direction != expectedSnakeDirection) {
-////            correctSensor(walls, wallSensors[expectedSnakeDirection]!!, false)
-////            correctSensor(foods, foodSensors[expectedSnakeDirection]!!, false)
-////        }
-////    }

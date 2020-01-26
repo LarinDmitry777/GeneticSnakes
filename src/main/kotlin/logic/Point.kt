@@ -1,6 +1,8 @@
 package logic
 
-data class Point(val x: Int, val y: Int) {
+import java.io.Serializable
+
+data class Point(val x: Int, val y: Int) : Serializable {
     operator fun plus(point: Point): Point {
         return Point(this.x + point.x, this.y + point.y)
     }

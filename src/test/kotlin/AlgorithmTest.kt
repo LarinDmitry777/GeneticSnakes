@@ -13,7 +13,7 @@ import kotlin.math.min
 class AlgorithmTests {
     @RepeatedTest(3)
     fun `Test sensors values in range of random algorithm`() {
-        val randomAlgorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = false, peekNearFood = false)
+        val randomAlgorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = false, nearFoodPriority = false)
         var isMaxValueFoodExist = false
         var isMaxValueWallExist = false
         var isMinValueFoodExist = false
@@ -47,7 +47,7 @@ class AlgorithmTests {
 
     @RepeatedTest(100)
     fun `Test random algorithm anti kamikaze one wall`() {
-        val algorihtm = Algorithm.generateRandomAlgorithm(antiKamikaze = true, peekNearFood = false)
+        val algorihtm = Algorithm.generateRandomAlgorithm(antiKamikaze = true, nearFoodPriority = false)
         val snakeHead = Point(5, 5)
         values().forEach { direction ->
             val food = listOf<Point>()
@@ -59,7 +59,7 @@ class AlgorithmTests {
 
     @RepeatedTest(100)
     fun `Test random algorithm anti kamikaze three wall`() {
-        val algorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = true, peekNearFood = false)
+        val algorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = true, nearFoodPriority = false)
         val snakeHead = Point(5, 5)
         values().forEach { direction ->
             val food = listOf<Point>()
@@ -74,7 +74,7 @@ class AlgorithmTests {
 
     @RepeatedTest(100)
     fun `Test random algorithm peek near food one food`() {
-        val algorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = false, peekNearFood = true)
+        val algorithm = Algorithm.generateRandomAlgorithm(antiKamikaze = false, nearFoodPriority = true)
         val snakeHead = Point(5, 5)
         val walls = listOf<Point>()
         values().forEach { direction ->

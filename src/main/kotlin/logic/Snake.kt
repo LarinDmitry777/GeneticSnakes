@@ -1,32 +1,30 @@
 package logic
 
+import java.io.Serializable
 import java.util.*
 
 class Snake(
     val cells: ArrayDeque<Point>,
     val algorithm: Algorithm,
     private val energyForFood: Int
-) {
+): Serializable {
 
     var energy = energyForFood
     var lifeTicksCount = 0
 
-    //ToDO Как сделать полем
-    fun getHeadPosition(): Point = cells.first
+    val headPosition: Point
+        get() = cells.first
+
 
     fun getMoveDirection(walls: Iterable<Point>, food: Iterable<Point>): Direction {
-        val moveTo = algorithm.generateDirection(walls, food, getHeadPosition())
+        val moveTo = algorithm.generateDirection(walls, food, headPosition)
         return moveTo
     }
-
-//    fun correctSensors(walls: Iterable<Point>, food: Iterable<Point>, direction: Direction) {
-//        algorithm.correctSensors(walls, food, direction, getHeadPosition())
-//    }
 
     fun move(direction: Direction, isEatFood: Boolean) {
         lifeTicksCount++
         val offset = direction.toOffset()
-        cells.addFirst(getHeadPosition() + offset)
+        cells.addFirst(headPosition + offset)
         if (!isEatFood)
             cells.removeLast()
         energy--

@@ -1,3 +1,2 @@
-cd build\libs
-java -jar SnakeGenetic-1.0.jar
+java -jar build\libs\SnakeGenetic-1.0.jar
 pause
